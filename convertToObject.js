@@ -40,9 +40,9 @@ var convertToObject = function(value)
 						_engine.curlyBracket.priority += 1;
 						break;
 					}
-					if (_engine.quote.in == false && _engine.separatorPast == true) {
-						tmp = value[i];
-						_engine.toNextPoint == true;
+					if (_engine.quote.in == false) { //  && _engine.separatorPast == true) {
+						tmp = '';
+						_engine.toNextPoint = true;
 						break;
 					}
 				break;
@@ -55,10 +55,12 @@ var convertToObject = function(value)
 					if (_engine.toNextPoint == true && _engine.curlyBracket.priority != 0) {
 						tmp += value[i];
 						_engine.curlyBracket.priority -= 1;
-						if (_engine.curlyBracket.priority == 0) {
-							_engine.value = new $process(tmp, (value[i] == ']' ? true : false));
-							tmp = null;
-						}
+						break;
+					}
+					if (_engine.curlyBracket.priority == 0 && tmp != null) {
+						_engine.toNextPoint = false;
+						_engine.value = new $process(tmp, (value[i] == ']' ? true : false));
+						tmp = null;
 						break;
 					}
 				case ':':
@@ -81,20 +83,30 @@ var convertToObject = function(value)
 						tmp += value[i];
 						break;
 					}
-					if ((isArray !== true && _engine.separatorPast == false) || tmp == null) {
+					if (isArray === true && (_engine.value != null || tmp != null)) {
+						toReturn.push((_engine.value == null ? tmp : _engine.value));
+					} else if ((isArray !== true && _engine.separatorPast == false) || tmp == null) {
 						break ;
+					} else {
+						
+
+						// ---
+						if (_engine.key != null) {
+							console.log('======>', _engine.key, _engine.value, tmp);
+						}
+						// ---
+
+
+						if (_engine.key != null) {
+							_engine.value = tmp;
+							toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
+						} else if (_engine.value != null) {
+							toReturn = _engine.value;
+						}
 					}
-					if (_engine.key != null) {
-						_engine.value = tmp;
-				
-						toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
-						_engine.key = null;
-						_engine.value = null;
-					} else if (isArray === true) {
-						
-						
-						
 					tmp = null;
+					_engine.key = null;
+					_engine.value = null;
 					_engine.separatorPast = false;
 				break;
 				case '\'':
@@ -146,11 +158,16 @@ var convertToObject = function(value)
 				tmp = null;
 			}
 			toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
+		} else if (_engine.value != null) {
+			toReturn = _engine.value;
 		}
 		return toReturn;
 	}
 
 	$formatData = function(value) {
+		if (typeof(value) == 'object') {
+			return value;
+		}
 		if (value != null && value[0] != '"') {
 			value[0] = '"';
 		}
@@ -159,15 +176,7 @@ var convertToObject = function(value)
 		}
 		return value;
 	}
-
-	// console.log(value);
 	return new $process(value);
 }
 
 module.exports = convertToObject;
-
-/*
- toto = "tutu", \'titi\' = tutu, \'test\' = \'tutu\', "tutu" = \'toto, titi and test don\'t do this !\', 
- ,toto: "tutu", \'titi\': tutu, \'test\': \'tutu\', "tutu": \'toto, titi and test don\'t do this !\'
- { titi: 'tutu et l'autre', titi: 42, } 
-*/
