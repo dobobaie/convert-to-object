@@ -81,15 +81,16 @@ var convertToObject = function(value)
 						tmp += value[i];
 						break;
 					}
-					if (tmp != null) {
-						_engine.value = tmp;
-						tmp = null;
+					if (_engine.separatorPast == false || tmp == null) {
+						break ;
 					}
 					if (_engine.key != null) {
+						_engine.value = tmp;
 						toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
 						_engine.key = null;
 						_engine.value = null;
 					}
+					tmp = null;
 					_engine.separatorPast = false;
 				break;
 				case '\'':
@@ -136,6 +137,10 @@ var convertToObject = function(value)
 		}
 
 		if (_engine.key != null) {
+			if (tmp != null) {
+				_engine.value = tmp;
+				tmp = null;
+			}
 			toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
 		}
 		return toReturn;
