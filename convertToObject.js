@@ -4,9 +4,9 @@ var convertToObject = function(value)
 		return null;
 	}
 
-	var $process = function(value)
+	var $process = function(value, isArray)
 	{
-		var toReturn = {};
+		var toReturn = (isArray === true ? [] : {});
 		var tmp = null;
 		var _engine = {
 			key: null,
@@ -56,7 +56,7 @@ var convertToObject = function(value)
 						tmp += value[i];
 						_engine.curlyBracket.priority -= 1;
 						if (_engine.curlyBracket.priority == 0) {
-							_engine.value = new $process(tmp);
+							_engine.value = new $process(tmp, (value[i] == ']' ? true : false));
 							tmp = null;
 						}
 						break;
@@ -81,15 +81,19 @@ var convertToObject = function(value)
 						tmp += value[i];
 						break;
 					}
-					if (_engine.separatorPast == false || tmp == null) {
+					if ((isArray !== true && _engine.separatorPast == false) || tmp == null) {
 						break ;
 					}
 					if (_engine.key != null) {
 						_engine.value = tmp;
+				
 						toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
 						_engine.key = null;
 						_engine.value = null;
-					}
+					} else if (isArray === true) {
+						
+						
+						
 					tmp = null;
 					_engine.separatorPast = false;
 				break;
