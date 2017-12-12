@@ -1,8 +1,8 @@
 {
   "name": "convert-to-object",
-  "version": "0.0.1",
-  "description": "Convert object string to object and fix errors to convert it.",
-  "main": "convertToObject.js",
+  "version": "0.0.2",
+  "description": "Convert string to object (correct json format and fix errors)",
+  "main": "convertToObject.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

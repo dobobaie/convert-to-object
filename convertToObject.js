@@ -23,6 +23,7 @@ var convertToObject = function(value)
 			},
 			separatorPast: false,
 			toNextPoint: false,
+			hadQuote: false,
 		};
 
 		if (value == null || typeof(value) != 'string') {
@@ -75,10 +76,10 @@ var convertToObject = function(value)
 						break;
 					}
 
+					_engine.hadQuote = false;
 					_engine.separatorPast = true;
 					_engine.key = (tmp != null ? tmp : _engine.key);
 					tmp = null;
-
 				break;
 				case '\n':
 				case '\r':
@@ -89,17 +90,22 @@ var convertToObject = function(value)
 						break;
 					}
 
-					if (isArray === true && (_engine.value != null || tmp != null)) {
-						toReturn.push((_engine.value == null ? tmp : _engine.value));
-					} else if (isArray !== true && (_engine.value != null || tmp != null)) {
+					var tmpValue = (_engine.value == null ? tmp : _engine.value);
+					if (_engine.hadQuote === false && tmpValue != null) {
+						try { tmp = JSON.parse(tmpValue); tmpValue = tmp; } catch(e) { }
+					}
+					if (isArray === true && tmpValue != null) {
+						toReturn.push(tmpValue);
+					} else if (isArray !== true && tmpValue != null) {
 						if (_engine.key != null) {
-							toReturn[$formatData(_engine.key)] = $formatData((_engine.value == null ? tmp : _engine.value));
+							toReturn[_engine.key] = tmpValue;
 						} else {
-							toReturn = (_engine.value == null ? tmp : _engine.value);
+							toReturn = tmpValue;
 						}
 					}
 
 					tmp = null;
+					_engine.hadQuote = false;
 					_engine.key = null;
 					_engine.value = null;
 					_engine.separatorPast = false;
@@ -111,6 +117,7 @@ var convertToObject = function(value)
 						tmp += value[i];
 						break;
 					}
+					_engine.hadQuote = true;
 					if (_engine.quote.in == false) {
 						tmp = '';
 						_engine.quote.in = true;
@@ -143,30 +150,21 @@ var convertToObject = function(value)
 			_engine.quote.hasLast = false;
 		}
 
-		if (isArray === true && (_engine.value != null || tmp != null)) {
-			toReturn.push((_engine.value == null ? tmp : _engine.value));
-		} else if (isArray !== true && (_engine.value != null || tmp != null)) {
+		var tmpValue = (_engine.value == null ? tmp : _engine.value);
+		if (_engine.hadQuote === false && tmpValue != null) {
+			try { tmp = JSON.parse(tmpValue); tmpValue = tmp; } catch(e) { }
+		}
+		if (isArray === true && tmpValue != null) {
+			toReturn.push(tmpValue);
+		} else if (isArray !== true && tmpValue != null) {
 			if (_engine.key != null) {
-				toReturn[$formatData(_engine.key)] = $formatData((_engine.value == null ? tmp : _engine.value));
+				toReturn[_engine.key] = tmpValue;
 			} else {
-				toReturn = (_engine.value == null ? tmp : _engine.value);
+				toReturn = tmpValue;
 			}
 		}
 
 		return toReturn;
-	}
-
-	$formatData = function(value) {
-		if (typeof(value) == 'object') {
-			return value;
-		}
-		if (value != null && value[0] != '"') {
-			value[0] = '"';
-		}
-		if (value != null && value[value.length - 1] != '"') {
-			value[value.length - 1] = '"';
-		}
-		return value;
 	}
 	return new $process(value);
 }
