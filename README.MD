@@ -1,4 +1,10 @@
-# convert-to
+# convert-to-object
+## Installation
+
+```bash
+$ npm install convert-to-object
+```
+
 ## Usage
 ```javascript
 const toObject = require('convert-to-object');

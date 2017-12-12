@@ -25,6 +25,10 @@ var convertToObject = function(value)
 			toNextPoint: false,
 		};
 
+		if (value == null || typeof(value) != 'string') {
+			return value;
+		}
+
 		for (var i = 0; value[i] != undefined; i++)
 		{
 			switch (value[i])
@@ -40,11 +44,10 @@ var convertToObject = function(value)
 						_engine.curlyBracket.priority += 1;
 						break;
 					}
-					if (_engine.quote.in == false) { //  && _engine.separatorPast == true) {
-						tmp = '';
-						_engine.toNextPoint = true;
-						break;
-					}
+					
+					tmp = '';
+					_engine.toNextPoint = true;
+	
 				break;
 				case '}':
 				case ']':
@@ -52,28 +55,30 @@ var convertToObject = function(value)
 						tmp += value[i];
 						break;
 					}
-					if (_engine.toNextPoint == true && _engine.curlyBracket.priority != 0) {
+					if (_engine.toNextPoint == false) {
+						break;
+					}
+					if (_engine.curlyBracket.priority != 0) {
 						tmp += value[i];
 						_engine.curlyBracket.priority -= 1;
 						break;
 					}
-					if (_engine.curlyBracket.priority == 0 && tmp != null) {
-						_engine.toNextPoint = false;
-						_engine.value = new $process(tmp, (value[i] == ']' ? true : false));
-						tmp = null;
-						break;
-					}
+			
+					_engine.toNextPoint = false;
+					_engine.value = new $process(tmp, (value[i] == ']' ? true : false));
+					tmp = null;
+					
 				case ':':
 				case '=':
 					if (_engine.toNextPoint == true || _engine.quote.in == true) {
 						tmp += value[i];
 						break;
 					}
-					if (tmp != null) {
-						_engine.key = tmp;
-						tmp = null;
-					}
+
 					_engine.separatorPast = true;
+					_engine.key = (tmp != null ? tmp : _engine.key);
+					tmp = null;
+
 				break;
 				case '\n':
 				case '\r':
@@ -83,27 +88,17 @@ var convertToObject = function(value)
 						tmp += value[i];
 						break;
 					}
+
 					if (isArray === true && (_engine.value != null || tmp != null)) {
 						toReturn.push((_engine.value == null ? tmp : _engine.value));
-					} else if ((isArray !== true && _engine.separatorPast == false) || tmp == null) {
-						break ;
-					} else {
-						
-
-						// ---
+					} else if (isArray !== true && (_engine.value != null || tmp != null)) {
 						if (_engine.key != null) {
-							console.log('======>', _engine.key, _engine.value, tmp);
-						}
-						// ---
-
-
-						if (_engine.key != null) {
-							_engine.value = tmp;
-							toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
-						} else if (_engine.value != null) {
-							toReturn = _engine.value;
+							toReturn[$formatData(_engine.key)] = $formatData((_engine.value == null ? tmp : _engine.value));
+						} else {
+							toReturn = (_engine.value == null ? tmp : _engine.value);
 						}
 					}
+
 					tmp = null;
 					_engine.key = null;
 					_engine.value = null;
@@ -112,7 +107,7 @@ var convertToObject = function(value)
 				case '\'':
 				case '"':
 				case '`':
-					if (_engine.toNextPoint == true) {
+					if (_engine.toNextPoint == true || (_engine.quote.in == true && _engine.quote.type != value[i])) {
 						tmp += value[i];
 						break;
 					}
@@ -122,17 +117,13 @@ var convertToObject = function(value)
 						_engine.quote.type = value[i];
 						_engine.quote.priority += 1;
 						break;
-					} else if (_engine.quote.type != value[i]) {
-						tmp += value[i];
-						break;
-					} else {
-						_engine.quote.priority -= 1;
-						if (_engine.quote.priority == 0) {
-							_engine.quote.hasLast = true;
-							_engine.quote.in = false;
-						}
-						continue;
 					}
+					_engine.quote.priority -= 1;
+					if (_engine.quote.priority == 0) {
+						_engine.quote.hasLast = true;
+						_engine.quote.in = false;
+					}
+					continue;
 				break;
 				case ' ':
 				case '\t':
@@ -152,15 +143,16 @@ var convertToObject = function(value)
 			_engine.quote.hasLast = false;
 		}
 
-		if (_engine.key != null) {
-			if (tmp != null) {
-				_engine.value = tmp;
-				tmp = null;
+		if (isArray === true && (_engine.value != null || tmp != null)) {
+			toReturn.push((_engine.value == null ? tmp : _engine.value));
+		} else if (isArray !== true && (_engine.value != null || tmp != null)) {
+			if (_engine.key != null) {
+				toReturn[$formatData(_engine.key)] = $formatData((_engine.value == null ? tmp : _engine.value));
+			} else {
+				toReturn = (_engine.value == null ? tmp : _engine.value);
 			}
-			toReturn[$formatData(_engine.key)] = $formatData(_engine.value);
-		} else if (_engine.value != null) {
-			toReturn = _engine.value;
 		}
+
 		return toReturn;
 	}
 
