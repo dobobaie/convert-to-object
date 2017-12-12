@@ -1,0 +1,32 @@
+{
+  "name": "convert-to-object",
+  "version": "0.0.2",
+  "description": "Convert string to object (correct json format and fix errors)",
+  "main": "convertToObject.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dobobaie/convert-to-object.git"
+  },
+  "keywords": [
+    "javascript",
+    "nodejs",
+    "convert",
+    "to",
+    "parse",
+    "stringify",
+    "json",
+    "string",
+    "str",
+    "object",
+    "awesome"
+  ],
+  "author": "Dobobaie",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dobobaie/convert-to-object/issues"
+  },
+  "homepage": "https://github.com/dobobaie/convert-to-object#readme"
+}
