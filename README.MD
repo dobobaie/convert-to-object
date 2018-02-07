@@ -1,5 +1,5 @@
 # convert-to-object
-Convert string to object (correct json format and fix errors).
+Convert string to object and fix syntax errors.
 
 ## Installation
 
@@ -13,15 +13,20 @@ $ npm install convert-to-object
 const toObject = require('convert-to-object');
 
 console.log(tmp = toObject(`
-	toto : "tutu"
-	\'titi\' : tutu
-	\'test\' : \'tutu\'
-	"tutu" : \`toto, titi and test don\'t do this !\`
+	name : "tutu"
+	\'nickname\' : tutu
+	\'email\' : \'tutu\'
+	"other" : \`toto, titi and test don\'t do this !\`
 `), typeof(tmp));
+// => {name: 'tutu', nickname: 'tutu', email: 'tutu', other: 'toto, titi, and test don\'t do this !'}
 console.log(tmp = toObject(' toto : "tutu"; \'titi\' : tutu; \'test\' : \'tutu\'; "tutu" : \'toto, titi and test don\'t do this !\'; '), typeof(tmp));
+// => {toto: 'tutu', titi: 'tutu', test: 'tutu', tutu: 'toto, titi, and test don\'t do this !'}
 console.log(tmp = toObject(' toto = "tutu", \'titi\' = tutu, \'test\' = \'tutu\', "tutu" = \'toto, titi and test don\'t do this !\', '), typeof(tmp));
+// => {toto: 'tutu', titi: 'tutu', test: 'tutu', tutu: 'toto, titi, and test don\'t do this !'}
 console.log(tmp = toObject(' ,toto: "tutu", \'titi\': tutu, \'test\': \'tutu\', "tutu": \'toto, titi and test don\'t do this !\' '), typeof(tmp));
+// => {toto: 'tutu', titi: 'tutu', test: 'tutu', tutu: 'toto, titi, and test don\'t do this !'}
 console.log(tmp = toObject(" { 'test': { 'test2' : 'test3' } } "), typeof(tmp));
+// => {test: {test2: 'test3'}}
 console.log(tmp = toObject(" { titi: 'tutu et l'autre', titi2: 42, } "), typeof(tmp));
 console.log(tmp = toObject(" { titi.tutu.test: 'damn' } "), typeof(tmp));
 console.log(tmp = toObject(" { 'test': { 'test2' : { \"toutou\" : 'test3' } } } "), typeof(tmp));
@@ -29,10 +34,4 @@ console.log(tmp = toObject(" { 'test': [{ test2: 'damn'}, 'deo'] } "), typeof(tm
 console.log(tmp = toObject(" [{ 'test': [{ test2: 'damn'}, true] }] "), typeof(tmp));
 console.log(tmp = toObject(" ['test', 42, true] }] "), typeof(tmp));
 
-```
-
-## Better to use
-`convert-to-object` fix all json errors in string if you have to parse a correct json format to object then you have use JSON.parse.
-```js
-JSON.parse(str); 
 ```

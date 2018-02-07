@@ -1,6 +1,10 @@
 {
   "name": "convert-to-object",
+<<<<<<< HEAD
   "version": "0.0.4",
+=======
+  "version": "0.0.3",
+>>>>>>> d8ae5353c11d077619705a045d7e39b00ded03c1
   "description": "Convert string to object and fix syntax errors.",
   "main": "convertToObject.min.js",
   "scripts": {
