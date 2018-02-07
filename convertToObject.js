@@ -169,5 +169,4 @@ var convertToObject = function(value)
 	return new $process(value);
 }
 
-module.exports = convertToObject;
-
+try { module.exports = convertToObject; } catch (e) {}
